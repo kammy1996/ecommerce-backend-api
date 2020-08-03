@@ -1,0 +1,22 @@
+{
+  "name": "ecommerce-backend-api",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/kammy1996/ecommerce-backend-api.git",
+  "author": "Kamran Memon",
+  "license": "MIT",
+  "description": "A full Fledged Ecommerce Project",
+  "scripts": {
+    "start": "nodemon --exec babel-node index.js"
+  },
+  "dependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/core": "^7.11.0",
+    "@babel/node": "^7.10.5",
+    "@babel/preset-env": "^7.11.0",
+    "express": "^4.17.1",
+    "nodemon": "^2.0.4",
+    "vue": "^2.6.11",
+    "vuetify": "^2.3.7"
+  }
+}
