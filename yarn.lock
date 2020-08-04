@@ -3292,16 +3292,6 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
-vue@^2.6.11:
-  version "2.6.11"
-  resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.11.tgz#76594d877d4b12234406e84e35275c6d514125c5"
-  integrity sha512-VfPwgcGABbGAue9+sfrD4PuwFar7gPb1yl1UK1MwXoQPAw0BKSqWfoYCT/ThFrdEVWoI51dBuyCoiNU9bZDZxQ==
-
-vuetify@^2.3.7:
-  version "2.3.7"
-  resolved "https://registry.yarnpkg.com/vuetify/-/vuetify-2.3.7.tgz#3f5dc9c63ae2b670d74374020c36409da144aa2b"
-  integrity sha512-9PNorMNNcn0okT78ZpN86qL5Zx4xu0yzcO2w1IdN3ECdbAP00rHe8CEYCThakwXGUuTZ8Iv7gAMDqH6zfxSMtA==
-
 widest-line@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/widest-line/-/widest-line-3.1.0.tgz#8292333bbf66cb45ff0de1603b136b7ae1496eca"
