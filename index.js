@@ -1,25 +1,16 @@
 // const express = require("express");
+"use strict";
+
 import express from "express";
 const app = express();
-
-const names = [];
 
 //listening on this port
 app.listen(3000);
 
-app.use(express.json());
-
 app.get("/", function (req, res) {
-  res.send("mem");
+  res.send("Application Started");
+  console.log("Application Started");
 });
 
-app.post("/getName", function (req, res) {
-  let addName = {
-    id: 0,
-    name: req.body.name,
-  };
-  names.push(addName);
-  res.send(names);
-});
-
-console.log(names);
+//Routes
+app.use("/product", require("./routes/product"));
