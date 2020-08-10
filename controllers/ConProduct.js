@@ -2,10 +2,27 @@
 import sqlConfig from "../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
 
-exports.show = (req, res) => {
-  sql.query("SELECT * from trial", (err, result) => {
+exports.add = (req, res) => {
+  const { name, shortDescription, price, discount } = req.body;
+
+  let addQuery =
+    "INSERT INTO products(name,short_description,price,discount) VALUES('" +
+    name +
+    "','" +
+    shortDescription +
+    "','" +
+    price +
+    "','" +
+    discount +
+    "');";
+
+  sql.query(addQuery, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.json(result);
+    res.json("Product Uploaded Succesfully");
   });
+};
+
+exports.get = (req, res) => {
+  res.send("response valid");
 };

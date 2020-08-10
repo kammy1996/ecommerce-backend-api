@@ -11,7 +11,8 @@ router.use(bodyParser.urlencoded({ extended: true })); // To Parse the body data
 let conProduct = require("../controllers/ConProduct");
 
 //Defining functions as per Routes
-router.get("/", conProduct.show); //Showing all the products
+router.post("/add", conProduct.add); //Showing all the products
+router.get("/get", conProduct.get); //Showing all the products
 
 //Exporting Router
 module.exports = router;
