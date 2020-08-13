@@ -8,7 +8,7 @@ router.use(cors()); // to get Data from Other Domains
 router.use(bodyParser.urlencoded({ extended: true })); // To Parse the body data
 
 //Importing Main Controller
-let conProduct = require("../controllers/ConProduct");
+import conProduct from "../controllers/ConProduct";
 
 //Defining functions as per Routes
 router.post("/add", conProduct.add); //Showing all the products

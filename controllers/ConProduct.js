@@ -19,10 +19,15 @@ exports.add = (req, res) => {
   sql.query(addQuery, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.json("Product Uploaded Succesfully");
+    res.send("product uploaded");
   });
 };
 
 exports.get = (req, res) => {
-  res.send("response valid");
+  let showProducts = "SELECT * from products";
+  sql.query(showProducts, (err, result) => {
+    if (err) throw err;
+    console.log(result);
+    res.json(result);
+  });
 };
