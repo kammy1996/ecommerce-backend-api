@@ -19,7 +19,7 @@ exports.add = (req, res) => {
   sql.query(addQuery, (err, result) => {
     if (err) throw err;
     console.log(result);
-    res.send("product uploaded");
+    res.json("product uploaded");
   });
 };
 

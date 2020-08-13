@@ -13,4 +13,4 @@ let sqlConfig = {
   }),
 };
 
-module.exports = sqlConfig;
+export default sqlConfig;
