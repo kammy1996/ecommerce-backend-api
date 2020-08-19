@@ -2,6 +2,7 @@
 import sqlConfig from "../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
 
+// Main submission of the form
 exports.add = (req, res) => {
   const {
     name,
@@ -10,6 +11,7 @@ exports.add = (req, res) => {
     price,
     discount,
     finalPrice,
+    stock,
   } = req.body;
 
   let addQuery =
@@ -29,18 +31,40 @@ exports.add = (req, res) => {
 
   sql.query(addQuery, (err, result) => {
     if (err) throw err;
-    console.log("product Uploaded");
-    res.json({
-      message: "product Uploaded Successfully",
-    });
+  });
+
+  // Inserting color and quantity and temp product_id = 1
+  let colorAdd = `INSERT INTO product_stock(color,quantity)VALUES ?`;
+  sql.query(colorAdd, [stock], (err, result) => {
+    if (err) throw err;
+  });
+
+  //Updating product_id to actual product_id from products
+  let updateId = `UPDATE product_stock SET product_id = (SELECT id FROM products WHERE name='${name}') WHERE product_id = '1'`;
+  sql.query(updateId, (err, result) => {
+    if (err) throw err;
+    console.log("product id stock mapped");
+  });
+
+  // //updating Stock_id in product_images
+  let stockId = `UPDATE product_images SET stock_id = (SELECT id FROM product_stock WHERE color ='${stock[0][0]}' AND quantity = '${stock[0][1]}') WHERE stock_id = 1`;
+  sql.query(stockId, (err, result) => {
+    if (err) throw err;
+  });
+
+  //Mapping categories_id and product_id into product_categories
+  let selectedCat = req.body.selectedCat;
+  let mapProduct = `INSERT INTO product_categories(product_id,category_id) SELECT id,'${selectedCat}' FROM products WHERE name = '${name}'`;
+  sql.query(mapProduct, (err, result) => {
+    if (err) throw err;
   });
 };
 
+//Fetching all the products
 exports.show = (req, res) => {
   let showProducts = "SELECT * FROM products";
   sql.query(showProducts, (err, result) => {
     if (err) throw err;
-    console.log(result);
     res.json(result);
   });
 };
@@ -62,20 +86,5 @@ exports.catShow = (req, res) => {
   sql.query("SELECT * FROM categories", (err, result) => {
     if (err) throw err;
     res.json(result);
-  });
-};
-
-exports.addStock = (req, res) => {
-  const { color, quantity } = req.body;
-  let stockQuery =
-    "INSERT INTO product_stock(color,quantity) VALUES('" +
-    color +
-    "','" +
-    quantity +
-    "');";
-
-  sql.query(stockQuery, (err, result) => {
-    if (err) throw err;
-    res.json("stock Added Successfully");
   });
 };
