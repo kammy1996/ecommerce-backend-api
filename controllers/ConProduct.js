@@ -11,7 +11,6 @@ exports.add = (req, res) => {
     price,
     discount,
     finalPrice,
-    stock,
   } = req.body;
 
   let addQuery =
@@ -33,23 +32,11 @@ exports.add = (req, res) => {
     if (err) throw err;
   });
 
-  // Inserting color and quantity and temp product_id = 1
-  let colorAdd = `INSERT INTO product_stock(color,quantity)VALUES ?`;
-  sql.query(colorAdd, [stock], (err, result) => {
-    if (err) throw err;
-  });
-
   //Updating product_id to actual product_id from products
   let updateId = `UPDATE product_stock SET product_id = (SELECT id FROM products WHERE name='${name}') WHERE product_id = '1'`;
   sql.query(updateId, (err, result) => {
     if (err) throw err;
     console.log("product id stock mapped");
-  });
-
-  // //updating Stock_id in product_images
-  let stockId = `UPDATE product_images SET stock_id = (SELECT id FROM product_stock WHERE color ='${stock[0][0]}' AND quantity = '${stock[0][1]}') WHERE stock_id = 1`;
-  sql.query(stockId, (err, result) => {
-    if (err) throw err;
   });
 
   //Mapping categories_id and product_id into product_categories
@@ -87,4 +74,42 @@ exports.catShow = (req, res) => {
     if (err) throw err;
     res.json(result);
   });
+};
+
+exports.imageAdd = (req, res) => {
+  let imageName = req.files;
+  let fileNames = [];
+  console.log(imageName);
+  // let finalImages = [];
+  for (var i = 0; i < imageName.length; i++) {
+    let name = imageName[i].filename;
+    fileNames.push([name]);
+  }
+
+  res.json("images uploaded Successfuly");
+
+  let addImages = `INSERT INTO product_images(file_name) VALUES ?`;
+  sql.query(addImages, [fileNames], (err, result) => {
+    if (err) throw err;
+    console.log(`product Images added`);
+  });
+};
+
+exports.stockAdd = (req, res) => {
+  let stock = req.body.stock;
+
+  // Inserting color and quantity and temp product_id = 1
+  let colorAdd = `INSERT INTO product_stock(color,quantity)VALUES ?`;
+  sql.query(colorAdd, [stock], (err, result) => {
+    if (err) throw err;
+    console.log(`stock added`);
+  });
+
+  // updating Stock_id in product_images
+  let stockId = `UPDATE product_images SET stock_id = (SELECT id FROM product_stock WHERE color ='${stock[0][0]}' AND quantity = '${stock[0][1]}') WHERE stock_id = '1'`;
+  setTimeout(() => {
+    sql.query(stockId, (err, result) => {
+      if (err) throw err;
+    });
+  }, 1000);
 };
