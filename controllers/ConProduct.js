@@ -1,6 +1,7 @@
 //importing SQL Configuration
 import sqlConfig from "../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
+import fs from "fs";
 
 // Main submission of the form
 exports.add = (req, res) => {
@@ -36,7 +37,6 @@ exports.add = (req, res) => {
   let updateId = `UPDATE product_stock SET product_id = (SELECT id FROM products WHERE name='${name}') WHERE product_id = '1'`;
   sql.query(updateId, (err, result) => {
     if (err) throw err;
-    console.log("product id stock mapped");
   });
 
   //Mapping categories_id and product_id into product_categories
@@ -44,6 +44,7 @@ exports.add = (req, res) => {
   let mapProduct = `INSERT INTO product_categories(product_id,category_id) SELECT id,'${selectedCat}' FROM products WHERE name = '${name}'`;
   sql.query(mapProduct, (err, result) => {
     if (err) throw err;
+    console.log(`Product Uploaded Sucessfully`);
   });
 };
 
@@ -77,12 +78,24 @@ exports.catShow = (req, res) => {
 };
 
 exports.imageAdd = (req, res) => {
-  let imageName = req.files;
-  let fileNames = [];
-  console.log(imageName);
-  // let finalImages = [];
+  let pName = req.body.nameForImage; // Creating folder names as per product name
+  let imageName = req.files; // Getting all the image files
+  let fileNames = []; // Array to add into Database
+
+  // Creating new Directory as per Product name
+  let dir = `./uploads/${pName}`;
+  fs.existsSync(dir) || fs.mkdirSync(dir);
+
   for (var i = 0; i < imageName.length; i++) {
     let name = imageName[i].filename;
+
+    //Rename the Path from temp to actual flies
+    fs.rename(`./uploads/tmp/${name}`, `./uploads/${pName}/${name}`, function (
+      err
+    ) {
+      if (err) return console.error(err);
+    });
+
     fileNames.push([name]);
   }
 
@@ -91,18 +104,22 @@ exports.imageAdd = (req, res) => {
   let addImages = `INSERT INTO product_images(file_name) VALUES ?`;
   sql.query(addImages, [fileNames], (err, result) => {
     if (err) throw err;
-    console.log(`product Images added`);
+  });
+};
+
+exports.showImages = (req, res) => {
+  sql.query(`SELECT file_name from product_images`, (err, result) => {
+    if (err) throw err;
+    res.json(result);
   });
 };
 
 exports.stockAdd = (req, res) => {
   let stock = req.body.stock;
-
   // Inserting color and quantity and temp product_id = 1
   let colorAdd = `INSERT INTO product_stock(color,quantity)VALUES ?`;
   sql.query(colorAdd, [stock], (err, result) => {
     if (err) throw err;
-    console.log(`stock added`);
   });
 
   // updating Stock_id in product_images
