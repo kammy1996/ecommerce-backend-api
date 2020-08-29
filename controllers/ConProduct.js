@@ -50,7 +50,8 @@ exports.add = (req, res) => {
 
 //Fetching all the products
 exports.show = (req, res) => {
-  let showProducts = "SELECT * FROM products";
+  let showProducts =
+    "SELECT products.name,products.final_price,products.discount,product_images.file_name,product_stock.color,product_categories.category_id from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN product_categories ON products.id = product_categories.product_id GROUP BY products.name";
   sql.query(showProducts, (err, result) => {
     if (err) throw err;
     res.json(result);
@@ -83,18 +84,20 @@ exports.imageAdd = (req, res) => {
   let fileNames = []; // Array to add into Database
 
   // Creating new Directory as per Product name
-  let dir = `./uploads/${pName}`;
+  let dir = `./public/uploads/products/${pName}`;
   fs.existsSync(dir) || fs.mkdirSync(dir);
 
   for (var i = 0; i < imageName.length; i++) {
     let name = imageName[i].filename;
 
     //Rename the Path from temp to actual flies
-    fs.rename(`./uploads/tmp/${name}`, `./uploads/${pName}/${name}`, function (
-      err
-    ) {
-      if (err) return console.error(err);
-    });
+    fs.rename(
+      `./public/uploads/tmp/${name}`,
+      `./public/uploads/products/${pName}/${name}`,
+      function (err) {
+        if (err) return console.error(err);
+      }
+    );
 
     fileNames.push([name]);
   }
