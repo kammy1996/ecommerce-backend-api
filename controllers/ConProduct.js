@@ -51,7 +51,7 @@ exports.add = (req, res) => {
 //Fetching all the products
 exports.show = (req, res) => {
   let showProducts =
-    "SELECT products.name,products.final_price,products.discount,product_images.file_name,product_stock.color,product_categories.category_id from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN product_categories ON products.id = product_categories.product_id GROUP BY products.name";
+    "SELECT products.id,products.name,products.short_description,products.specification,products.price,products.discount,products.final_price,products.discount,product_images.file_name,product_stock.color,product_categories.category_id from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN product_categories ON products.id = product_categories.product_id GROUP BY products.name";
   sql.query(showProducts, (err, result) => {
     if (err) throw err;
     res.json(result);
@@ -132,4 +132,15 @@ exports.stockAdd = (req, res) => {
       if (err) throw err;
     });
   }, 1000);
+};
+
+exports.showProductAsPerId = (req, res) => {
+  sql.query(
+    `SELECT * from products where id = ${req.params.id}`,
+    (err, result) => {
+      if (err) throw err;
+      res.json(result);
+      console.log(result);
+    }
+  );
 };
