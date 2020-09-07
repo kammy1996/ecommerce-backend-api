@@ -16,6 +16,10 @@ router.get("/category/show", conProduct.catShow); // Displaying the category
 router.post("/stock/add", conProduct.stockAdd);
 router.post("/image/add", upload.array("files"), conProduct.imageAdd);
 router.get("/image/show", conProduct.showImages);
+router.get("/:id", conProduct.getProductById);
+router.put("/update/:id", conProduct.updateProduct);
+router.get("/fetch/image/:id", conProduct.getProductImagesById);
+router.get("/fetch/stock/:id", conProduct.getProductStock);
 // ----------Multer File Upload  ----------
 
 //Exporting Router

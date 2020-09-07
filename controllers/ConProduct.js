@@ -134,13 +134,53 @@ exports.stockAdd = (req, res) => {
   }, 1000);
 };
 
-exports.showProductAsPerId = (req, res) => {
+exports.getProductById = (req, res) => {
   sql.query(
-    `SELECT * from products where id = ${req.params.id}`,
+    `SELECT * FROM products WHERE id = ${req.params.id}`,
     (err, result) => {
       if (err) throw err;
       res.json(result);
       console.log(result);
     }
   );
+};
+
+exports.getProductStock = (req, res) => {
+  sql.query(
+    `SELECT product_stock.color,product_stock.quantity from product_stock INNER JOIN products ON product_stock.product_id = ${req.params.id} GROUP BY product_stock.color`,
+    (err, result) => {
+      if (err) throw err;
+      res.json(result);
+      console.log(result);
+    }
+  );
+};
+
+exports.getProductImagesById = (req, res) => {
+  sql.query(
+    `SELECT file_name FROM product_images INNER JOIN product_stock ON product_stock.id = product_images.stock_id INNER JOIN products ON  product_stock.product_id = ${req.params.id} GROUP BY product_images.file_name`,
+    (err, result) => {
+      if (err) throw err;
+      res.json(result);
+      console.log(result);
+    }
+  );
+};
+
+exports.updateProduct = (req, res) => {
+  const {
+    name,
+    shortDescription,
+    specification,
+    price,
+    discount,
+    finalPrice,
+  } = req.body;
+  let productUpdate = `UPDATE products SET name='${name}',short_description = '${shortDescription}', specification='${specification}',price ='${price}',discount='${discount}',final_price='${finalPrice}' WHERE id = ${req.params.id}`;
+  sql.query(productUpdate, (err, result) => {
+    if (err) throw err;
+    res.json({
+      message: `product Updated`,
+    });
+  });
 };
