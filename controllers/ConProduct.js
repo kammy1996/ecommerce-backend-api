@@ -2,6 +2,7 @@
 import sqlConfig from "../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
 import fs from "fs";
+import mysql from "mysql";
 
 // Main submission of the form
 exports.add = (req, res) => {
@@ -136,51 +137,68 @@ exports.stockAdd = (req, res) => {
 
 exports.getProductById = (req, res) => {
   sql.query(
-    `SELECT * FROM products WHERE id = ${req.params.id}`,
+    `SELECT products.id,products.name,products.short_description,products.specification,products.price,products.discount,products.final_price,product_categories.category_id FROM products INNER JOIN product_categories ON product_categories.product_id = products.id WHERE products.id = ${req.params.id}`,
     (err, result) => {
       if (err) throw err;
       res.json(result);
-      console.log(result);
     }
   );
 };
 
 exports.getProductStock = (req, res) => {
   sql.query(
-    `SELECT product_stock.color,product_stock.quantity from product_stock INNER JOIN products ON product_stock.product_id = ${req.params.id} GROUP BY product_stock.color`,
+    `SELECT product_stock.id,product_stock.color,product_stock.quantity from product_stock INNER JOIN products ON product_stock.product_id = ${req.params.id} GROUP BY product_stock.color`,
     (err, result) => {
       if (err) throw err;
       res.json(result);
-      console.log(result);
     }
   );
 };
 
 exports.getProductImagesById = (req, res) => {
   sql.query(
-    `SELECT file_name FROM product_images INNER JOIN product_stock ON product_stock.id = product_images.stock_id INNER JOIN products ON  product_stock.product_id = ${req.params.id} GROUP BY product_images.file_name`,
+    `SELECT product_images.id,product_images.file_name,product_images.stock_id FROM product_images INNER JOIN product_stock ON product_stock.id = product_images.stock_id INNER JOIN products ON  product_stock.product_id = ${req.params.id} GROUP BY product_images.file_name`,
     (err, result) => {
       if (err) throw err;
       res.json(result);
-      console.log(result);
     }
   );
 };
 
 exports.updateProduct = (req, res) => {
   const {
-    name,
     shortDescription,
     specification,
     price,
     discount,
     finalPrice,
+    stock,
+    categoryId,
   } = req.body;
-  let productUpdate = `UPDATE products SET name='${name}',short_description = '${shortDescription}', specification='${specification}',price ='${price}',discount='${discount}',final_price='${finalPrice}' WHERE id = ${req.params.id}`;
+  let productUpdate = `UPDATE products SET short_description = '${shortDescription}', specification='${specification}',price ='${price}',discount='${discount}',final_price='${finalPrice}' WHERE id = ${req.params.id}`;
   sql.query(productUpdate, (err, result) => {
     if (err) throw err;
-    res.json({
-      message: `product Updated`,
-    });
   });
+
+  let stockQueries = "";
+  stock.forEach((item) => {
+    stockQueries += mysql.format(
+      `UPDATE product_stock SET color = ?,quantity =? WHERE id = ?;`,
+      item
+    );
+  });
+
+  sql.query(stockQueries, (err, result) => {
+    if (err) throw err;
+  });
+
+  sql.query(
+    `UPDATE product_categories SET category_id =${categoryId} WHERE product_id = ${req.params.id}`,
+    (err, result) => {
+      if (err) throw err;
+      res.json({
+        message: `product Updated`,
+      });
+    }
+  );
 };
