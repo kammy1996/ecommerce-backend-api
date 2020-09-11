@@ -3,6 +3,7 @@ import sqlConfig from "../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
 import fs from "fs";
 import mysql from "mysql";
+import path from "path";
 
 // Main submission of the form
 exports.add = (req, res) => {
@@ -45,7 +46,9 @@ exports.add = (req, res) => {
   let mapProduct = `INSERT INTO product_categories(product_id,category_id) SELECT id,'${selectedCat}' FROM products WHERE name = '${name}'`;
   sql.query(mapProduct, (err, result) => {
     if (err) throw err;
-    console.log(`Product Uploaded Sucessfully`);
+    res.json({
+      message: "product Uploaded Successfully",
+    });
   });
 };
 
@@ -62,7 +65,7 @@ exports.show = (req, res) => {
 //Add Category
 exports.catAdd = (req, res) => {
   const nameCat = req.body.catName;
-  let addCat = "INSERT into categories(name)VALUES('" + nameCat + "')";
+  let addCat = `INSERT into categories(name)VALUES('${nameCat}')`;
   sql.query(addCat, (err, result) => {
     if (err) throw err;
     res.json({
@@ -80,12 +83,16 @@ exports.catShow = (req, res) => {
 };
 
 exports.imageAdd = (req, res) => {
-  let pName = req.body.nameForImage; // Creating folder names as per product name
+  // Creating folder names as per product name
+  let pName = req.body.nameForImage;
+
+  let finalName = pName.toLowerCase();
+
   let imageName = req.files; // Getting all the image files
   let fileNames = []; // Array to add into Database
 
   // Creating new Directory as per Product name
-  let dir = `./public/uploads/products/${pName}`;
+  let dir = `./public/uploads/products/${finalName}`;
   fs.existsSync(dir) || fs.mkdirSync(dir);
 
   for (var i = 0; i < imageName.length; i++) {
@@ -94,7 +101,7 @@ exports.imageAdd = (req, res) => {
     //Rename the Path from temp to actual flies
     fs.rename(
       `./public/uploads/tmp/${name}`,
-      `./public/uploads/products/${pName}/${name}`,
+      `./public/uploads/products/${finalName}/${name}`,
       function (err) {
         if (err) return console.error(err);
       }
@@ -175,6 +182,7 @@ exports.updateProduct = (req, res) => {
     stock,
     categoryId,
   } = req.body;
+
   let productUpdate = `UPDATE products SET short_description = '${shortDescription}', specification='${specification}',price ='${price}',discount='${discount}',final_price='${finalPrice}' WHERE id = ${req.params.id}`;
   sql.query(productUpdate, (err, result) => {
     if (err) throw err;
@@ -198,6 +206,112 @@ exports.updateProduct = (req, res) => {
       if (err) throw err;
       res.json({
         message: `product Updated`,
+      });
+    }
+  );
+};
+
+exports.updateNewImages = (req, res) => {
+  let imageNames = req.files;
+  let pName = req.body.name;
+
+  let fileNames = [];
+
+  imageNames.forEach((image) => {
+    let name = image.filename;
+
+    fs.rename(
+      `./public/uploads/tmp/${name}`,
+      `./public/uploads/products/${pName}/${name}`,
+      function (err) {
+        if (err) return console.error(err);
+      }
+    );
+
+    fileNames.push([req.params.stockId, name]);
+  });
+
+  sql.query(
+    `INSERT INTO product_images(stock_id,file_name)VALUES ?`,
+    [fileNames],
+    (err, result) => {
+      if (err) throw err;
+      console.log("images added");
+      res.json({
+        message: "image edited",
+      });
+    }
+  );
+};
+
+exports.updateExistingImage = (req, res) => {
+  let pName = req.body.pName;
+  let Lname = pName.toLowerCase();
+  let removedImages = req.body.removed;
+
+  let removeMultipleQuery = "";
+  removedImages.forEach((item) => {
+    removeMultipleQuery += mysql.format(
+      `DELETE FROM product_images WHERE file_name = ?;`,
+      item
+    );
+  });
+  sql.query(removeMultipleQuery, (err, result) => {
+    if (err) throw err;
+  });
+
+  removedImages.forEach((remove) => {
+    const removedDir = `./public/uploads/products/${Lname}/${remove}`;
+    fs.unlink(removedDir, (err) => {
+      if (err) throw err;
+    });
+  });
+};
+
+exports.updateNewStock = (req, res) => {
+  const { color, quantity } = req.body;
+
+  sql.query(
+    `INSERT INTO product_stock(product_id,color,quantity) VALUES(${req.params.id},'${color}','${quantity}')`,
+    (err, result) => {
+      if (err) throw err;
+      console.log(`new Stock Added`);
+    }
+  );
+};
+
+exports.deleteStock = (req, res) => {
+  sql.query(
+    `DELETE FROM product_stock where id = ${req.params.stockId}; DELETE FROM product_images WHERE stock_id = ${req.params.stockId}`,
+    (err, result) => {
+      if (err) throw err;
+      console.log(`stock Deleted`);
+    }
+  );
+
+  // Delete Images from product_images
+  sql.query(
+    `DELETE FROM product_images WHERE stock_id = ${req.params.stockId}`,
+    (err, result) => {
+      if (err) throw err;
+      console.log(`Stock deleted From Database`);
+    }
+  );
+
+  let name = req.body.name;
+  let Lname = name.toLowerCase();
+
+  sql.query(
+    `SELECT file_name FROM product_images WHERE stock_id = ${req.params.stockId}`,
+    (err, result) => {
+      if (err) throw err;
+      // let deletedStockFiles = [];
+      result.forEach((file) => {
+        // deletedStockFiles.push(file.file_name);
+        const removedDir = `./public/uploads/products/${Lname}/${file.file_name}`;
+        fs.unlink(removedDir, (err) => {
+          if (err) throw err;
+        });
       });
     }
   );

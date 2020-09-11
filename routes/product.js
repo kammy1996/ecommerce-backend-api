@@ -20,7 +20,14 @@ router.get("/:id", conProduct.getProductById);
 router.put("/update/:id", conProduct.updateProduct);
 router.get("/fetch/image/:id", conProduct.getProductImagesById);
 router.get("/fetch/stock/:id", conProduct.getProductStock);
-// ----------Multer File Upload  ----------
+router.post(
+  "/update/image/new/:stockId",
+  upload.array("files"),
+  conProduct.updateNewImages
+);
+router.put("/update/existing/image", conProduct.updateExistingImage);
+router.post(`/update/add/stock/:id`, conProduct.updateNewStock);
+router.put(`/update/delete/stock/:stockId`, conProduct.deleteStock);
 
 //Exporting Router
 module.exports = router;
