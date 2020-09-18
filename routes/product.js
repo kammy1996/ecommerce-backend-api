@@ -28,6 +28,8 @@ router.post(
 router.put("/update/existing/image", conProduct.updateExistingImage);
 router.post(`/update/add/stock/:id`, conProduct.updateNewStock);
 router.put(`/update/delete/stock/:stockId`, conProduct.deleteStock);
+router.get(`/related/:id`, conProduct.getRelatedProducts);
+router.get("/show/:perPage/:page", conProduct.productsAsPerPagination);
 
 //Exporting Router
 module.exports = router;

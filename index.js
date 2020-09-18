@@ -22,6 +22,7 @@ app.get("/", function (req, res) {
 //Routes
 //Routes
 app.use("/api/product", require("./routes/product"));
+app.use("/api/product/client", require("./routes/productClient"));
 
 //listening on this port
 app.listen(port, () => console.log("listening on port" + port));

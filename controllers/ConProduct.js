@@ -54,8 +54,7 @@ exports.add = (req, res) => {
 
 //Fetching all the products
 exports.show = (req, res) => {
-  let showProducts =
-    "SELECT products.id,products.name,products.short_description,products.specification,products.price,products.discount,products.final_price,products.discount,product_images.file_name,product_stock.color,product_categories.category_id from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN product_categories ON products.id = product_categories.product_id GROUP BY products.name";
+  let showProducts = "SELECT name from products";
   sql.query(showProducts, (err, result) => {
     if (err) throw err;
     res.json(result);
@@ -110,7 +109,7 @@ exports.imageAdd = (req, res) => {
     fileNames.push([name]);
   }
 
-  res.json("images uploaded Successfuly");
+  res.json("images uploaded Successfully");
 
   let addImages = `INSERT INTO product_images(file_name) VALUES ?`;
   sql.query(addImages, [fileNames], (err, result) => {
@@ -315,4 +314,26 @@ exports.deleteStock = (req, res) => {
       });
     }
   );
+};
+
+exports.getRelatedProducts = (req, res) => {
+  let relatedQuery = `SELECT products.id,products.name,products.price,products.discount,products.final_price,product_categories.product_id,product_images.file_name FROM products INNER JOIN product_categories ON product_categories.product_id = products.id INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images ON product_images.stock_id = product_stock.id WHERE product_categories.category_id = ${req.params.id} GROUP BY products.name`;
+
+  sql.query(relatedQuery, (err, result) => {
+    if (err) throw err;
+    res.json(result);
+  });
+};
+
+exports.productsAsPerPagination = (req, res) => {
+  const limit = req.params.perPage;
+  let page = req.params.page;
+  const offset = (page - 1) * limit;
+
+  let productsQuery = `SELECT products.id,products.name,products.price,products.discount,products.final_price,product_images.file_name from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN product_categories ON products.id = product_categories.product_id GROUP BY products.name LIMIT ${limit} OFFSET ${offset}  `;
+
+  sql.query(productsQuery, (err, result) => {
+    if (err) throw err;
+    res.json(result);
+  });
 };
