@@ -35,12 +35,6 @@ exports.add = (req, res) => {
     if (err) throw err;
   });
 
-  //Updating product_id to actual product_id from products
-  let updateId = `UPDATE product_stock SET product_id = (SELECT id FROM products WHERE name='${name}') WHERE product_id = '1'`;
-  sql.query(updateId, (err, result) => {
-    if (err) throw err;
-  });
-
   //Mapping categories_id and product_id into product_categories
   let selectedCat = req.body.selectedCat;
   let mapProduct = `INSERT INTO product_categories(product_id,category_id) SELECT id,'${selectedCat}' FROM products WHERE name = '${name}'`;
@@ -49,6 +43,12 @@ exports.add = (req, res) => {
     res.json({
       message: "product Uploaded Successfully",
     });
+  });
+
+  //Updating product_id to actual product_id from products
+  let updateId = `UPDATE product_stock SET product_id = (SELECT id FROM products WHERE name='${name}') WHERE product_id = '1'`;
+  sql.query(updateId, (err, result) => {
+    if (err) throw err;
   });
 };
 
@@ -317,7 +317,7 @@ exports.deleteStock = (req, res) => {
 };
 
 exports.getRelatedProducts = (req, res) => {
-  let relatedQuery = `SELECT products.id,products.name,products.price,products.discount,products.final_price,product_categories.product_id,product_images.file_name FROM products INNER JOIN product_categories ON product_categories.product_id = products.id INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images ON product_images.stock_id = product_stock.id WHERE product_categories.category_id = ${req.params.id} GROUP BY products.name`;
+  let relatedQuery = `SELECT products.id,products.name,products.price,products.discount,products.final_price,product_images.file_name FROM products INNER JOIN product_categories ON product_categories.product_id = products.id INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images ON product_images.stock_id = product_stock.id WHERE product_categories.category_id = ${req.params.id} GROUP BY products.name`;
 
   sql.query(relatedQuery, (err, result) => {
     if (err) throw err;
