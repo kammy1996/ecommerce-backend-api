@@ -20,9 +20,11 @@ app.get("/", function (req, res) {
 });
 
 //Routes
-//Routes
-app.use("/api/product", require("./routes/product"));
-app.use("/api/product/client", require("./routes/productClient"));
+//-- PRODUCT--
+app.use("/api/product", require("./routes/product/product"));
+app.use("/api/product/client", require("./routes/product/productClient"));
+//--USER--
+app.use("/api/user", require("./routes/user/userClient"));
 
 //listening on this port
 app.listen(port, () => console.log("listening on port" + port));
