@@ -40,13 +40,16 @@ exports.loginUser = async (req, res) => {
         { userId: result[0].id },
         process.env.TOKEN_SECRET
       );
-      res.header("Auth-token", token).send(token);
+      res.header("Auth-token", token).json({
+        message: "User Logged In",
+        token: token,
+      });
     }
   });
 };
 
 exports.userProfile = (req, res) => {
-  let userInfo = `SELECT * FROM users`;
+  let userInfo = `SELECT * FROM users WHERE id = '${req.user.userId}'`;
 
   sql.query(userInfo, (err, result) => {
     if (err) throw err;

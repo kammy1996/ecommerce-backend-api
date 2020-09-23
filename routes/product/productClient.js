@@ -10,4 +10,5 @@ router.post("/cart/:id", conProductClient.addProductToCart);
 router.get("/cart/fetch", conProductClient.getProductsFromCart);
 router.delete(`/cart/delete/:id`, conProductClient.deleteFromCart);
 router.get(`/cart/count`, conProductClient.getCartCount);
+
 module.exports = router;

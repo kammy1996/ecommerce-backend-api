@@ -43,6 +43,7 @@ exports.addProductToCart = (req, res) => {
     if (err) throw err;
     res.json({
       message: "product Added to the Cart",
+      result: result,
     });
   });
 };
@@ -52,6 +53,7 @@ exports.getProductsFromCart = (req, res) => {
 
   sql.query(getProductsFromCart, (err, result) => {
     if (err) throw err;
+
     res.json({
       product: result[0],
       stock: result[1],
@@ -71,6 +73,6 @@ exports.deleteFromCart = (req, res) => {
 exports.getCartCount = (req, res) => {
   sql.query(`SELECT COUNT(id) FROM carts`, (err, result) => {
     if (err) throw err;
-    res.json(result);
+    res.status(200).json(result);
   });
 };

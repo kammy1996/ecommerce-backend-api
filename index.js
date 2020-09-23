@@ -4,19 +4,20 @@
 import express from "express";
 import cors from "cors";
 import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 
 const port = 3000;
 const app = express();
-
+app.use(cookieParser());
 app.use(cors()); // to get Data from Other Domains
 app.use(bodyParser.urlencoded({ extended: false })); // To Parse the body data
 app.use(bodyParser.json()); //to Parse the Json Data
-app.use("/", express.static("public/uploads/products"));
+app.use("/", express.static("public/uploads/products")); //For frontend to access this folder
 
 //To show the Index page
 app.get("/", function (req, res) {
-  res.send("Application Started");
   console.log("Application Started");
+  res.send("application Started");
 });
 
 //Routes
