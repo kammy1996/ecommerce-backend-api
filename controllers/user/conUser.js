@@ -37,12 +37,17 @@ exports.loginUser = async (req, res) => {
       return res.send("Email Or password is Incorrect");
     } else {
       const token = jwt.sign(
-        { userId: result[0].id },
+        {
+          userId: result[0].id,
+        },
         process.env.TOKEN_SECRET
       );
       res.header("Auth-token", token).json({
-        message: "User Logged In",
         token: token,
+        user: {
+          email: result[0].email,
+          password: result[0].password,
+        },
       });
     }
   });

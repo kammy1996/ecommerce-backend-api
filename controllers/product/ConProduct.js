@@ -143,7 +143,7 @@ exports.stockAdd = (req, res) => {
 
 exports.getProductById = (req, res) => {
   sql.query(
-    `SELECT products.id,products.name,products.short_description,products.specification,products.price,products.discount,products.final_price,product_categories.category_id FROM products INNER JOIN product_categories ON product_categories.product_id = products.id WHERE products.id = ${req.params.id}`,
+    `SELECT products.id,products.name,products.short_description,products.specification,products.price,products.discount,products.final_price,product_categories.category_id,product_images.file_name FROM products INNER JOIN product_categories ON product_categories.product_id = products.id INNER JOIN product_stock ON products.id= product_stock.product_id INNER JOIN product_images ON product_stock.id = product_images.stock_id WHERE products.id = ${req.params.id}`,
     (err, result) => {
       if (err) throw err;
       res.json(result);
