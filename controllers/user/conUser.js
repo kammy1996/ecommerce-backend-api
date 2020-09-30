@@ -53,6 +53,25 @@ exports.loginUser = async (req, res) => {
   });
 };
 
+exports.addToUserCart = (req, res) => {
+  let addQuery = `INSERT INTO carts(user_id,product_id) VALUES('${req.user.userId}','${req.params.id}')`;
+  sql.query(addQuery, (err, result) => {
+    if (err) throw err;
+    res.send("Product added to the Cart");
+  });
+};
+
+exports.getProductsFromUsersCart = (req, res) => {
+  let getUserProductsFromCart = `SELECT products.id,products.name,products.final_price,product_images.file_name from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN carts ON carts.product_id = products.id GROUP BY products.name; SELECT product_stock.product_id,product_stock.color from product_stock INNER JOIN carts ON carts.product_id = product_stock.product_id WHERE carts.user_id =${req.user.userId} GROUP BY product_stock.color`;
+  sql.query(getUserProductsFromCart, (err, result) => {
+    if (err) throw err;
+    res.json({
+      product: result[0],
+      stock: result[1],
+    });
+  });
+};
+
 exports.userProfile = (req, res) => {
   let userInfo = `SELECT * FROM users WHERE id = '${req.user.userId}'`;
 
@@ -60,4 +79,13 @@ exports.userProfile = (req, res) => {
     if (err) throw err;
     res.json(result);
   });
+};
+
+exports.DeleteFromUserCart = (req, res) => {
+  sql.query(
+    `DELETE FROM carts WHERE user_id = '${req.user.userId}' AND product_id = ${req.params.id}`,
+    (err, result) => {
+      if (err) throw err;
+    }
+  );
 };
