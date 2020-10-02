@@ -54,7 +54,35 @@ exports.loginUser = async (req, res) => {
 };
 
 exports.addToUserCart = (req, res) => {
-  let addQuery = `INSERT INTO carts(user_id,product_id) VALUES('${req.user.userId}','${req.params.id}')`;
+  let productId = req.body.productId;
+
+  //Removing Dups caused when getting products from Cookies
+  let removeDuplicates = `DELETE t1 FROM carts t1
+  INNER JOIN carts t2 
+  WHERE 
+      t1.id < t2.id AND 
+      t1.user_id = t2.user_id AND
+      t1.product_id = t2.product_id;`;
+
+  sql.query(removeDuplicates, (err, result) => {
+    if (err) throw err;
+  });
+
+  if (Array.isArray(productId)) {
+    let arrData = [];
+    productId.forEach((item) => {
+      arrData.push([req.user.userId, item]);
+    });
+
+    let addArrIntoDB = `INSERT INTO carts(user_id,product_id)VALUES ?`;
+    sql.query(addArrIntoDB, [arrData], (err, result) => {
+      if (err) throw err;
+      res.send("Product added to the Cart");
+    });
+    return;
+  }
+
+  let addQuery = `INSERT INTO carts(user_id,product_id) VALUES('${req.user.userId}','${productId}')`;
   sql.query(addQuery, (err, result) => {
     if (err) throw err;
     res.send("Product added to the Cart");
@@ -62,7 +90,7 @@ exports.addToUserCart = (req, res) => {
 };
 
 exports.getProductsFromUsersCart = (req, res) => {
-  let getUserProductsFromCart = `SELECT products.id,products.name,products.final_price,product_images.file_name from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN carts ON carts.product_id = products.id GROUP BY products.name; SELECT product_stock.product_id,product_stock.color from product_stock INNER JOIN carts ON carts.product_id = product_stock.product_id WHERE carts.user_id =${req.user.userId} GROUP BY product_stock.color`;
+  let getUserProductsFromCart = `SELECT products.id,products.name,products.final_price,product_images.file_name from products INNER JOIN product_stock ON products.id = product_stock.product_id INNER JOIN product_images on product_stock.id = product_images.stock_id INNER JOIN carts ON carts.product_id = products.id WHERE carts.user_id =${req.user.userId} GROUP BY products.name; SELECT product_stock.product_id,product_stock.color from product_stock INNER JOIN carts ON carts.product_id = product_stock.product_id WHERE carts.user_id =${req.user.userId} GROUP BY product_stock.color`;
   sql.query(getUserProductsFromCart, (err, result) => {
     if (err) throw err;
     res.json({
