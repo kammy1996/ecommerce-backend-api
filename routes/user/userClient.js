@@ -10,5 +10,6 @@ router.post("/cart/add", verify, conUserClient.addToUserCart);
 router.get("/profile", verify, conUserClient.userProfile);
 router.get("/cart/products", verify, conUserClient.getProductsFromUsersCart);
 router.delete("/cart/delete/:id", verify, conUserClient.DeleteFromUserCart);
+router.get("/confirmation/:token", conUserClient.verifyEmail);
 
 module.exports = router;

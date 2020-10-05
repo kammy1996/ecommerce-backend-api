@@ -2,27 +2,107 @@ import sqlConfig from "../../database/dbConfig";
 let sql = sqlConfig.mysql_pool;
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 
 exports.addUser = async (req, res) => {
   const { name, email, password } = req.body;
 
   let hashedPass = await bcrypt.hash(password, 8);
 
-  let checkEmailExist = `SELECT email FROM users WHERE email = '${email}'`;
-
-  sql.query(checkEmailExist, (err, result) => {
-    if (err) throw err;
-    if (result.length > 0) {
-      return res.send("User Already Exist");
-    }
-
-    let addUser = `INSERT INTO users(full_name,email,password) VALUES('${name}','${email}','${hashedPass}')`;
-
-    sql.query(addUser, (err, result) => {
+  sql.query(
+    `SELECT email FROM users WHERE email = '${email}'`,
+    (err, result) => {
       if (err) throw err;
-      return res.send("User Registered");
-    });
-  });
+      if (result.length > 0) {
+        return res.send("User Already Exist");
+      }
+
+      let addUser = `INSERT INTO users(full_name,email,password) VALUES('${name}','${email}','${hashedPass}')`;
+
+      sql.query(addUser, (err, result) => {
+        if (err) throw err;
+      });
+
+      //Email Verification
+      let transporter = nodemailer.createTransport({
+        service: "gmail",
+        host: "smtp.gmail.com",
+        auth: {
+          user: "aditidev1996@gmail.com",
+          pass: "riyadev1996",
+        },
+      });
+
+      sql.query(
+        `SELECT id FROM users WHERE email='${email}'`,
+        async (err, result) => {
+          if (err) throw err;
+
+          try {
+            const emailToken = jwt.sign(
+              {
+                userId: result[0].id,
+              },
+              process.env.TOKEN_SECRET,
+              {
+                expiresIn: "3d",
+              }
+            );
+
+            const url =
+              process.env.HOST_URL + "/user/confirmation/" + emailToken;
+
+            await transporter.sendMail({
+              to: email,
+              subject: "Confirm Email",
+              html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+            });
+          } catch (e) {
+            console.log(e);
+          }
+
+          // jwt.sign(
+          //   {
+          //     userId: result[0].id,
+          //   },
+          //   process.env.TOKEN_SECRET,
+          //   {
+          //     expiresIn: "3d",
+          //   },
+          //   (err, emailToken) => {
+          //     const url =
+          //       process.env.HOST_URL + "/user/confirmation/" + emailToken;
+
+          //     transporter.sendMail({
+          //       to: email,
+          //       subject: "Confirm Email",
+          //       html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+          //     });
+          //   }
+          // );
+          return res.send(
+            "Verification Link has been sent your registered Email Id"
+          );
+        }
+      );
+    }
+  );
+};
+
+exports.verifyEmail = async (req, res) => {
+  let token = req.params.token;
+  try {
+    req.user = await jwt.verify(token, process.env.TOKEN_SECRET);
+    sql.query(
+      `UPDATE users SET verification='confirmed' WHERE id='${req.user.userId}'`,
+      (err, result) => {
+        if (err) throw err;
+        res.redirect(`${process.env.CLIENT_URL}/user/login`);
+      }
+    );
+  } catch (err) {
+    res.send(err);
+  }
 };
 
 exports.loginUser = async (req, res) => {
@@ -58,9 +138,9 @@ exports.addToUserCart = (req, res) => {
 
   //Removing Dups caused when getting products from Cookies
   let removeDuplicates = `DELETE t1 FROM carts t1
-  INNER JOIN carts t2 
-  WHERE 
-      t1.id < t2.id AND 
+  INNER JOIN carts t2
+  WHERE
+      t1.id < t2.id AND
       t1.user_id = t2.user_id AND
       t1.product_id = t2.product_id;`;
 
