@@ -18,7 +18,6 @@ exports.addUser = async (req, res) => {
       }
 
       let addUser = `INSERT INTO users(full_name,email,password) VALUES('${name}','${email}','${hashedPass}')`;
-
       sql.query(addUser, (err, result) => {
         if (err) throw err;
       });
@@ -35,51 +34,29 @@ exports.addUser = async (req, res) => {
 
       sql.query(
         `SELECT id FROM users WHERE email='${email}'`,
-        async (err, result) => {
+        (err, result) => {
           if (err) throw err;
 
-          try {
-            const emailToken = jwt.sign(
-              {
-                userId: result[0].id,
-              },
-              process.env.TOKEN_SECRET,
-              {
-                expiresIn: "3d",
-              }
-            );
+          jwt.sign(
+            {
+              userId: result[0].id,
+            },
+            process.env.TOKEN_SECRET,
+            {
+              expiresIn: "3d",
+            },
+            (err, emailToken) => {
+              if (err) throw err;
+              const url =
+                process.env.HOST_URL + "/user/confirmation/" + emailToken;
 
-            const url =
-              process.env.HOST_URL + "/user/confirmation/" + emailToken;
-
-            await transporter.sendMail({
-              to: email,
-              subject: "Confirm Email",
-              html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
-            });
-          } catch (e) {
-            console.log(e);
-          }
-
-          // jwt.sign(
-          //   {
-          //     userId: result[0].id,
-          //   },
-          //   process.env.TOKEN_SECRET,
-          //   {
-          //     expiresIn: "3d",
-          //   },
-          //   (err, emailToken) => {
-          //     const url =
-          //       process.env.HOST_URL + "/user/confirmation/" + emailToken;
-
-          //     transporter.sendMail({
-          //       to: email,
-          //       subject: "Confirm Email",
-          //       html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
-          //     });
-          //   }
-          // );
+              transporter.sendMail({
+                to: email,
+                subject: "Confirm Email",
+                html: `Please click this email to confirm your email: <a href="${url}">${url}</a>`,
+              });
+            }
+          );
           return res.send(
             "Verification Link has been sent your registered Email Id"
           );
@@ -89,10 +66,10 @@ exports.addUser = async (req, res) => {
   );
 };
 
-exports.verifyEmail = async (req, res) => {
+exports.verifyEmail = (req, res) => {
   let token = req.params.token;
   try {
-    req.user = await jwt.verify(token, process.env.TOKEN_SECRET);
+    req.user = jwt.verify(token, process.env.TOKEN_SECRET);
     sql.query(
       `UPDATE users SET verification='confirmed' WHERE id='${req.user.userId}'`,
       (err, result) => {
@@ -105,17 +82,32 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
-exports.loginUser = async (req, res) => {
+exports.loginUser = (req, res) => {
   const { email, password } = req.body;
 
   let loginQuery = `SELECT * FROM users WHERE email = '${email}'`;
 
   sql.query(loginQuery, async (err, result) => {
     if (err) throw err;
+    if (result.length < 1) {
+      return res.send({ message: "Email Does not exist" });
+    } else if (!(await bcrypt.compare(password, result[0].password))) {
+      return res.send({
+        message: "Email Or password is Incorrect",
+      });
+    }
 
-    if (!result || !(await bcrypt.compare(password, result[0].password))) {
-      return res.send("Email Or password is Incorrect");
-    } else {
+    // Check if the Email is verified
+    let verifiedEmail = `SELECT * FROM users WHERE email = '${email}' AND verification = 'confirmed'`;
+
+    sql.query(verifiedEmail, (err, result) => {
+      if (err) throw err;
+      if (result.length < 1) {
+        return res.send({
+          message: "Email Not Verified",
+        });
+      }
+
       const token = jwt.sign(
         {
           userId: result[0].id,
@@ -129,7 +121,7 @@ exports.loginUser = async (req, res) => {
           password: result[0].password,
         },
       });
-    }
+    });
   });
 };
 
