@@ -173,11 +173,14 @@ exports.getProductsFromUsersCart = (req, res) => {
 };
 
 exports.userProfile = (req, res) => {
-  let userInfo = `SELECT * FROM users WHERE id = '${req.user.userId}'`;
+  let userInfo = `SELECT id,full_name,email from users WHERE id = '${req.user.userId}'; SELECT phone,address,pincode, city,state FROM user_details WHERE user_id = '${req.user.userId}'`;
 
   sql.query(userInfo, (err, result) => {
     if (err) throw err;
-    res.json(result);
+    res.json({
+      userDetails: result[0],
+      addresses: result[1],
+    });
   });
 };
 
@@ -186,6 +189,54 @@ exports.DeleteFromUserCart = (req, res) => {
     `DELETE FROM carts WHERE user_id = '${req.user.userId}' AND product_id = ${req.params.id}`,
     (err, result) => {
       if (err) throw err;
+      res.send("Details Updated");
+    }
+  );
+};
+
+exports.getLocations = (req, res) => {
+  let getLocations = "SELECT state from states; SELECT city from cities";
+
+  sql.query(getLocations, (err, result) => {
+    if (err) throw err;
+    res.json({
+      states: result[0],
+      cities: result[1],
+    });
+  });
+};
+
+exports.addUserDetails = (req, res) => {
+  const { phone, address, pincode, city, state } = req.body;
+
+  let insertUserDetails = `INSERT INTO user_details(user_id,phone,address,pincode,city,state)VALUES('${req.user.userId}','${phone}','${address}','${pincode}','${city}','${state}')`;
+
+  sql.query(insertUserDetails, (err, result) => {
+    if (err) throw err;
+    res.send("user Details added");
+  });
+};
+
+exports.updateUserDetails = (req, res) => {
+  const { phone, address, pincode, city, state } = req.body;
+  let oldAddress = req.params.address;
+
+  let updateQuery = `UPDATE user_details set phone = '${phone}', address= '${address}', pincode = '${pincode}', city='${city}',state='${state}' WHERE address = '${oldAddress}'`;
+
+  sql.query(updateQuery, (err, result) => {
+    if (err) throw err;
+    res.send(`address Delete`);
+  });
+};
+
+exports.deleteUserDetails = (req, res) => {
+  let oldAddress = req.body.oldAddress;
+
+  sql.query(
+    `DELETE FROM user_details WHERE address= '${oldAddress}'`,
+    (err, result) => {
+      if (err) throw err;
+      res.send(`Address Deleted`);
     }
   );
 };
