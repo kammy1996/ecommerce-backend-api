@@ -6,7 +6,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
-const port = 3000;
+const port = 5000;
 const app = express();
 app.use(cookieParser());
 app.use(cors()); // to get Data from Other Domains
