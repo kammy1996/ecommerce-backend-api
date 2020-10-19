@@ -6,7 +6,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 
-const port = 5000;
 const app = express();
 app.use(cookieParser());
 app.use(cors()); // to get Data from Other Domains
@@ -28,4 +27,7 @@ app.get("/", function (req, res) {
 // app.use("/api/user", require("./routes/user/userClient"));
 
 //listening on this port
-app.listen(port, () => console.log("listening on port" + port));
+const port = process.env.PORT || 5000;
+
+app.listen(port|| 5000);
+console.log(`app listening on${port}`)
