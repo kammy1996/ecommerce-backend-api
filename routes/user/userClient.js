@@ -1,8 +1,8 @@
-import express from "express";
+const express = require("express");
 const router = express.Router();
-import verify from "../../helpers/verifyToken";
+const verify = require("../../helpers/verifyToken");
 
-import conUserClient from "../../controllers/user/conUser";
+const conUserClient = require("../../controllers/user/conUser");
 
 router.post("/add", conUserClient.addUser);
 router.post("/login", conUserClient.loginUser);

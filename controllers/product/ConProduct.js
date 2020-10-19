@@ -1,9 +1,8 @@
 //importing SQL Configuration
-import sqlConfig from "../../database/dbConfig";
+const sqlConfig = require("../../database/dbConfig")
 let sql = sqlConfig.mysql_pool;
-import fs from "fs";
-import mysql from "mysql";
-import path from "path";
+const fs = require("fs");
+const mysql = require("mysql")
 
 // Main submission of the form
 exports.add = (req, res) => {

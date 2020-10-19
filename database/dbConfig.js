@@ -1,5 +1,8 @@
-import mysql from "mysql";
-import dotenv from "dotenv";
+// import mysql from "mysql";
+// import dotenv from "dotenv";
+
+const mysql = require("mysql");
+const dotenv = require("dotenv")
 
 dotenv.config({ path: "./.env" });
 
@@ -13,4 +16,4 @@ let sqlConfig = {
   }),
 };
 
-export default sqlConfig;
+module.exports = sqlConfig;

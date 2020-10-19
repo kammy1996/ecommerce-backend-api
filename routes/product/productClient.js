@@ -1,7 +1,7 @@
-import express from "express";
+const express = require("express");
 const router = express.Router();
 
-import conProductClient from "../../controllers/product/ConProductClient";
+const conProductClient = require("../../controllers/product/ConProductClient");
 
 router.get("/price/:min/:max", conProductClient.priceFilter);
 router.get("/sort/price/:sequence", conProductClient.sortProductsByPrice);

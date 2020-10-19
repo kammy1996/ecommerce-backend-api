@@ -1,10 +1,15 @@
 // const express = require("express");
 "use strict";
 
-import express from "express";
-import cors from "cors";
-import bodyParser from "body-parser";
-import cookieParser from "cookie-parser";
+// import express from "express";
+// import cors from "cors";
+// import bodyParser from "body-parser";
+// import cookieParser from "cookie-parser";
+
+const express = require("express")
+const cors = require("cors");
+const bodyParser = require("body-parser")
+const cookieParser = require("cookie-parser")
 
 const app = express();
 app.use(cookieParser());
@@ -19,12 +24,13 @@ app.get("/", function (req, res) {
   res.send("application Started");
 });
 
-//Routes
-//-- PRODUCT--
-// app.use("/api/product", require("./routes/product/product"));
-// app.use("/api/product/client", require("./routes/product/productClient"));
-// //--USER--
-// app.use("/api/user", require("./routes/user/userClient"));
+
+// Routes
+// -- PRODUCT--
+app.use("/api/product",require("./routes/product/product"));
+app.use("/api/product/client", require("./routes/product/productClient"));
+//--USER--
+app.use("/api/user", require("./routes/user/userClient"));
 
 //listening on this port
 const port = process.env.PORT || 5000;

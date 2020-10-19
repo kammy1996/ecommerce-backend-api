@@ -1,8 +1,8 @@
-import sqlConfig from "../../database/dbConfig";
+const sqlConfig = require("../../database/dbConfig")
 let sql = sqlConfig.mysql_pool;
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 exports.addUser = async (req, res) => {
   const { name, email, password } = req.body;

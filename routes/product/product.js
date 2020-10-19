@@ -1,12 +1,12 @@
-import express from "express";
+const express = require("express")
 const router = express.Router();
 
 // Importing Custom modules
-import fileUpload from "../../helpers/fileUpload";
+const fileUpload = require("../../helpers/fileUpload");
 let upload = fileUpload.upload;
 
 //Importing Main Controller
-import conProduct from "../../controllers/product/ConProduct";
+const conProduct = require("../../controllers/product/ConProduct");
 
 //Defining functions as per Routes
 router.post("/add", conProduct.add); //Showing all the products

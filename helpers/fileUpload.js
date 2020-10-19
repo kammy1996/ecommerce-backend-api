@@ -1,5 +1,5 @@
 // // --------------------------- Need to Restructure --------
-import multer from "multer";
+const multer = require("multer");
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -14,4 +14,4 @@ const upload = multer({
   storage: storage,
 });
 
-export default { storage, upload };
+module.exports = { storage, upload}

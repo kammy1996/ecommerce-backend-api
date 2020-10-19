@@ -1,5 +1,5 @@
 //importing SQL Configuration
-import sqlConfig from "../../database/dbConfig";
+const sqlConfig = require("../../database/dbConfig")
 let sql = sqlConfig.mysql_pool;
 
 exports.priceFilter = (req, res) => {
