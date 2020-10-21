@@ -27,8 +27,8 @@ exports.addUser = async (req, res) => {
         service: "gmail",
         host: "smtp.gmail.com",
         auth: {
-          user: "aditidev1996@gmail.com",
-          pass: "riyadev1996",
+          user: "memonkamran25@gmail.com",
+          pass: "kammo@786",
         },
       });
 
