@@ -24,11 +24,12 @@ exports.addUser = async (req, res) => {
 
       //Email Verification
       let transporter = nodemailer.createTransport({
-        service: "gmail",
-        host: "smtp.gmail.com",
+        host: "mail.easerevenue.com",
+        port:587,
+        secure:false,
         auth: {
-          user: "memonkamran25@gmail.com",
-          pass: "kammo@786",
+          user: "kamran@easerevenue.com",
+          pass: "Kammy_ER@2017",
         },
       });
 
